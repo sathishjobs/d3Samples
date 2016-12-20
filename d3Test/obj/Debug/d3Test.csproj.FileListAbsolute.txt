@@ -1,0 +1,6 @@
+\\10.0.0.132\productworkspace\sathish.ganapathy\documents\visual studio 2013\Projects\d3Test\d3Test\bin\d3Test.dll.config
+\\10.0.0.132\productworkspace\sathish.ganapathy\documents\visual studio 2013\Projects\d3Test\d3Test\bin\d3Test.dll
+\\10.0.0.132\productworkspace\sathish.ganapathy\documents\visual studio 2013\Projects\d3Test\d3Test\bin\d3Test.pdb
+\\10.0.0.132\productworkspace\sathish.ganapathy\documents\visual studio 2013\Projects\d3Test\d3Test\obj\Debug\d3Test.csprojResolveAssemblyReference.cache
+\\10.0.0.132\productworkspace\sathish.ganapathy\documents\visual studio 2013\Projects\d3Test\d3Test\obj\Debug\d3Test.dll
+\\10.0.0.132\productworkspace\sathish.ganapathy\documents\visual studio 2013\Projects\d3Test\d3Test\obj\Debug\d3Test.pdb

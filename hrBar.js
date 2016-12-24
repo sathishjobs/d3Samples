@@ -3,13 +3,14 @@
 *Varsion : 0.01 
 *Globar object : $$bar
 *Dependencies : D3.js
-*Author : Sathish@Ducen
 **/
 
 (function (window, d3) {
    
+    console.log("This is from bar_d3.js library");
+
     var l_fnHbard3 = function () {
-        return new l_csHbard3_init
+        return new l_csHbard3_init ()
     };
 
     //Base object constructor 
@@ -29,50 +30,218 @@
 
         //Add colors to the bar Chart 
         //Type array[]
-        this.colors = [];
+        this.colors = "blue";
 
         //Add animation to the Chart
-        //Type array[]
-        this.animation = [];
+        //Type array of object
+        this.animation = "";
 
         //Add Events to the Chart 
         //Type array[]
         this.events = [];
 
+        this.svg_width = 0;
+
+        this.svg_height = 0;
+
         //Add Yaxis values to the Chart 
         //Type array []
         this.tickValues = [];
+
+        this.chart = "";
         
    };
 
 
+   
+
     l_fnHbard3.prototype = {
 
-
+        
 
         /** Add basic config to the bar chart **/
         /* Param Type : p_data[],toAppend[],yAxisValues[];
         **/
-        fn_barConfig: function (p_data, toAppend, yAxisValues) {
+        fn_barConfig: function (p_data, toAppend, p_yAxisValues) {
+                
+            
 
-            if (p_data instanceof Array && toAppend instanceof Array && yAxisValues instanceof Array)
+            if ( p_data instanceof Array && toAppend instanceof Array )
             {
+                //Remove existing chart for testing purpose
+               d3.select("#svg_pointer").remove();
+                this.data = p_data;
                 var l_data = d3.map(p_data);
                 var l_element = d3.map(toAppend);
-                var l_yAxisValues = d3.map(yAxisValues);
+                
+
+                //check the third param is valid or not
 
                 //check data is empty or not 
+                
+                if (l_data.empty() || l_element.empty() ) {
+                    throw new Error("First or Second Array  Parameter is Empty");
+                    //console.log("Some Array parameter is empty");
+                }
+
+                else if (isNaN(p_yAxisValues)) {
+                    throw new Error("Y axis value is not a number\nPlease Provide number");
+                }
+
+                else {
+
+
+                    // Get selector to where we want to append the chart
+                    //filter logic to select valid selectors 
+
+                    var l_strAppend = "";
+                    if (toAppend.length == 1) {
+                        toAppend.forEach(function (a) {
+                            if (a.element) {
+                                l_strAppend = a.element;
+                            } else if (a.id) {
+                                l_strAppend = "#" + a.id;
+                            } else if (a.class) {
+                                l_strAppend = "." + a.class;
+                            }
+                        });
+                    }
+
+                    console.log(l_strAppend);
+
+                    //if all basic array config not empty 
+                    //generate the barchart  p_data
+
+
+                    //Generate tick value based on tickvalue max data
+                    var tickVals = [];
+                    var tempData = 0;
+                    var maxValue = p_yAxisValues;
+                    for (var i = 0; i <= maxValue; i++) {
+                        if (tempData < maxValue) {
+                            var value = i * 5;
+                            tempData = value;
+                            tickVals.push(value);      
+                        }
+                    }
+
+                    console.log(tickVals);
+
+
+
+                    var xscale = d3.scale.linear()
+                                    .domain([0, d3.max(tickVals)])
+                                    .range([0, 722]);
+
+                    var yscale = d3.scale.linear()
+                                    .domain([0, l_data.size()])
+                                    .range([0, 480]);
+
+                    var colorScale = d3.scale.quantize()
+                                    .domain([0, p_data.length])
+                                    .range(this.colors);
+
+                    
+
+                    var xAxis = d3.svg.axis();
+                    xAxis
+                        .orient('bottom')
+                        .scale(xscale)
+                        .tickSize(2)
+                        .tickFormat(function (d, i) { return tickVals[i] + "K"; })
+                        .tickValues(tickVals);
+
+                    var yAxis = d3.svg.axis();
+                    yAxis
+                        .orient('left')
+                        .scale(yscale)
+                        .tickSize(2)
+                        .tickFormat(function (d, i) { return p_data[i].category; })
+                        .tickValues(d3.range(p_data.length));
+
+                    
+
+                    
+                    var canvas = d3.select("body")
+                                .append('svg')
+                                .attr("id","svg_pointer")
+                                .attr({ 'width': this.svg_width || 900, 'height': this.svg_height || 550 });
+
+                    
+
+                    var y_xis = canvas.append('g')
+                                      .attr("transform", "translate(150,4)")
+                                      .attr('id', 'yaxis')
+                                      .call(yAxis);
+
+                    var x_xis = canvas.append('g')
+                                      .attr("transform", "translate(150,480)")
+                                      .attr('id', 'xaxis')
+                                      .call(xAxis);
+
+
+                    var chart = canvas.append('g')
+                    .attr("transform", "translate(150,6)")
+                    .attr('id', 'bars')
+                    .selectAll('rect')
+                    .data(p_data)
+                    .enter()
+                    .append('rect')
+                    .attr('height', 20)
+                    .attr({ 'x': 0, 'y': function (d, i) { return yscale(i); } })
+                    .style('fill', function (d, i) { return colorScale(i); })
+                    .attr('width', function (d) { return 0; xscale(d.value) });
+
+
+                    var transit = d3.select("svg").selectAll("rect")
+						    .data(p_data)
+                            .transition()
+						    .duration(this.animation.duration || 0)
+                            .ease(this.animation.ease || "")
+						    .attr("width", function (d) { console.log(d); return xscale(d.value); });
+                    
+                    //end events 
+
+                    chart.on("mouseover", function (d, i) {
+                        d3.select(this)
+                        .style('fill', function () {
+                           // console.log(d);
+                           // console.log(i);
+                            return colorScale(i);
+                        });
+
+                        canvas.append("text")
+                              .attr({
+                                  id: "t" + d.value,
+                                  x: function () { return d.value + 200; },
+                                  y: function () { return yscale(i); }
+                              })
+                              .text(function () {
+                                //  console.log("[" + d.category + "==" + d.value + "]")
+                                  return [d.category, +d.value];
+                              });
+
+                    })
+
+                    .on("mouseout", function (d, i) {
+                       d3.select("#t" + d.value).remove();
+                        //console.log("This is triggered");
+                    });
+
+                    this.chart = canvas;
+
+                    return this;
+
+                    //** End basic bar login **/
+
+                }
+
                
                
             } else {
                 throw new Error("All parammeters should be array");
                 console.log("Some parameter is not array");
-            }
-
-            var l_data = d3.map(p_data);
-            var l_element = d3.map(toAppend);
-            var l_yAxisValues = d3.map(yAxisValues);
-        
+            }        
         },
 
         /** AddData to the Visual 
@@ -84,10 +253,38 @@
         },
 
         /** AddStyle to the Visual 
-        ** Type of param : json type
+        ** Type of param : Array of object type
         **/
-        fn_addStyle : function (p_jsonStyleData){
-            this.bar_style.push(p_jsonStyleData);
+        fn_addStyle: function (p_jsonStyleData) {
+
+            var height = 0;
+            var width = 0;
+
+            p_jsonStyleData.forEach(function (key, a) {
+                console.log(key);
+                if (key.width) {
+                    width = key.width;
+                    
+                } else {
+                    throw "AddStyle width param is required";
+                }
+
+                if (key.height) {
+                    height = key.height;
+                    
+                } else {
+                    throw "AddStyle height param is required";
+                }
+                
+           });
+
+            this.svg_width = width;
+            this.svg_height = height;
+
+
+            console.log("---");
+            console.log("Width"+this.svg_width);
+            console.log("Height" + this.svg_height);
             return this;
         },
 
@@ -104,7 +301,8 @@
         ** Type of param : json type
         **/
         fn_addColors : function(p_jsonColorData){
-            this.colors.push(p_jsonColorData);
+            this.colors=p_jsonColorData;
+            console.log(this.colors);
             return this;
         },
 
@@ -112,7 +310,8 @@
         ** Type of param : json type
         **/
         fn_addAnimation : function(p_jsonAnimationAttr){
-            this.animation.push(p_jsonAnimationAttr);
+            this.animation = p_jsonAnimationAttr;
+            console.log(this.animation.duration);
             return this;
         },
 
@@ -126,45 +325,23 @@
         /** AddEvents to the Visual 
         ** Type of param : json type
         **/
-        fn_addEvents : function (p_jsonEventAttr){
-            this.events.push(p_jsonEventAttr);
+        fn_addEvents: function (event, callback) {
+         
+            if (!this.chart == "")
+            {
+                this.chart.on(event, function () {
+                    callback();
+                })
+            }
+            else {
+                throw "There is no Visual found";
+            }
+
             return this;
         },
 
-        fn_getCommonData: function () {
-            console.log("Data");
-            console.log(this.data);
-            console.log("===============");
-
-            console.log("Style");
-            console.log(this.bar_style);
-            console.log("===============");
-
-            console.log("Selector");
-            console.log(this.selector);
-            console.log("===============");
-
-            console.log("Colors");
-            console.log(this.colors);
-            console.log("==============");
-
-            console.log("Animation");
-            console.log(this.animation);
-            console.log("===============");
-
-            console.log("Events");
-            console.log(this.events);
-            console.log("===============");
-
-        }
-
-
-        //if Every variable i
-
-
-    };
-
-
+     
+    }; //Prototype End
 
 
     //assign prototype to l_csHbard3_init constructor
@@ -174,139 +351,4 @@
     window.hrbr = window.$$bar = l_fnHbard3;
 
 }(window, d3))
-
-
-
-//BluePrint 
-
-var data = [
-{ category: "", value: 0 },
-{ category: "Shorts", value: 12 },
-{ category: "Water Bottle", value: 13 },
-{ category: "Cage", value: 40 },
-{ category: "Sleeve", value: 30 },
-{ category: "Tire", value: 17 },
-{ category: "Fender", value: 15 },
-{ category: "Vest", value: 29 },
-{ category: "Car", value: 19 },
-{ category: "cap", value: 23 },
-{ category: "Bike", value: 22 },
-{ category: "Sathish", value: 19 }
-]
-
-
-var colors = ['#0000b4', '#0082ca', '#0094ff', '#0d4bcf', '#0066AE', '#074285', '#00187B', '#285964', '#405F83', '#416545'];
-
-
-var tickVals = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
-
-
-var xscale = d3.scale.linear()
-                .domain([0, 50])
-                .range([0, 722]);
-
-var yscale = d3.scale.linear()
-                .domain([0, data.length])
-                .range([0, 480]);
-
-var colorScale = d3.scale.quantize()
-                .domain([0, data.length])
-                .range(colors);
-//finished;
-var canvas = d3.select('#wrapper')
-                .append('svg')
-                .attr({ 'width': 900, 'height': 550 });
-
-var xAxis = d3.svg.axis();
-xAxis
-    .orient('bottom')
-    .scale(xscale)
-    .tickFormat(function (d, i) { return tickVals[i] + "K"; })
-    .tickValues(tickVals);
-
-var yAxis = d3.svg.axis();
-yAxis
-    .orient('left')
-    .scale(yscale)
-    .tickSize(2)
-    .tickFormat(function (d, i) { return data[i].category; })
-    .tickValues(d3.range(data.length));
-
-var y_xis = canvas.append('g')
-                  .attr("transform", "translate(150,4)")
-                  .attr('id', 'yaxis')
-                  .call(yAxis);
-
-var x_xis = canvas.append('g')
-                  .attr("transform", "translate(150,480)")
-                  .attr('id', 'xaxis')
-                  .call(xAxis);
-
-var chart = canvas.append('g')
-                    .attr("transform", "translate(150,6)")
-                    .attr('id', 'bars')
-                    .selectAll('rect')
-                    .data(data)
-                    .enter()
-                    .append('rect')
-                    .attr('height', 20)
-                    .attr({ 'x': 0, 'y': function (d, i) { return yscale(i); } })
-                    .style('fill', function (d, i) { return colorScale(i); })
-                    .attr('width', function (d) { return 0; });
-
-
-chart.on("mouseover", function (d, i) {
-    d3.select(this)
-    .style('fill', function () {
-        console.log(d);
-        console.log(i);
-        return colorScale(i);
-    });
-
-    canvas.append("text")
-          .attr({
-              id: "t" + d.value,
-              x: function () { return d.value + 200; },
-              y: function () { return yscale(i); }
-          })
-          .text(function () {
-              console.log("[" + d.category + "==" + d.value + "]")
-              return [d.category, +d.value];
-          });
-
-})
-
-.on("mouseout", function (d, i) {
-    d3.select("#t" + d.value).remove();
-    console.log("This is triggered");
-});
-
-
-
-
-
-chart.on("mouseleave", function () {
-
-});
-
-
-
-canvas.on("click", function () {
-    console.log('clicked');
-    console.log(this);
-});
-
-
-var transit = d3.select("svg").selectAll("rect")
-                    .data(data)
-                    .transition()
-                    .duration(1000)
-                    .attr("width", function (d) { console.log(d); return xscale(d.value); });
-
-
-
-
-
-//EndBluePrint
-
-
+//Pass window and d3 object

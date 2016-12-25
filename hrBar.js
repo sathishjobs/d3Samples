@@ -1,3 +1,4 @@
+
 /**
 *Name : bar_d3.js
 *Varsion : 0.01 
@@ -5,10 +6,8 @@
 *Dependencies : D3.js
 **/
 
-(function (window, d3) {
+ (function (window, d3) {
    
-    console.log("This is from bar_d3.js library");
-
     var l_fnHbard3 = function () {
         return new l_csHbard3_init ()
     };
@@ -69,7 +68,7 @@
             if ( p_data instanceof Array && toAppend instanceof Array )
             {
                 //Remove existing chart for testing purpose
-               d3.select("#svg_pointer").remove();
+               //d3.select("#svg_pointer").remove();
                 this.data = p_data;
                 var l_data = d3.map(p_data);
                 var l_element = d3.map(toAppend);
@@ -106,8 +105,8 @@
                             }
                         });
                     }
-
-                    console.log(l_strAppend);
+                    d3.select(l_strAppend+" #svg_pointer").remove();
+                    //console.log(l_strAppend+"#"+svg_pointer);
 
                     //if all basic array config not empty 
                     //generate the barchart  p_data
@@ -162,7 +161,7 @@
                     
 
                     
-                    var canvas = d3.select("body")
+                    var canvas = d3.select(l_strAppend || "body")
                                 .append('svg')
                                 .attr("id","svg_pointer")
                                 .attr({ 'width': this.svg_width || 900, 'height': this.svg_height || 550 });
@@ -190,15 +189,15 @@
                     .attr('height', 20)
                     .attr({ 'x': 0, 'y': function (d, i) { return yscale(i); } })
                     .style('fill', function (d, i) { return colorScale(i); })
-                    .attr('width', function (d) { return 0; xscale(d.value) });
+                    .attr('width', function (d) { return xscale(d.value) });
 
 
-                    var transit = d3.select("svg").selectAll("rect")
+                  /**  var transit = d3.select("svg").selectAll("rect")
 						    .data(p_data)
                             .transition()
 						    .duration(this.animation.duration || 0)
                             .ease(this.animation.ease || "")
-						    .attr("width", function (d) { console.log(d); return xscale(d.value); });
+						    .attr("width", function (d) { console.log(d); return xscale(d.value); }); **/
                     
                     //end events 
 
@@ -352,3 +351,4 @@
 
 }(window, d3))
 //Pass window and d3 object
+

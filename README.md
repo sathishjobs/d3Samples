@@ -3,4 +3,5 @@
 # http://jsfiddle.net/crXK3/
 # Interactive Data Visualization for the Web (ebook)
 
+## http://www.hongkiat.com/blog/javascript-jargon/
 

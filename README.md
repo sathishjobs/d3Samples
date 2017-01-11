@@ -27,3 +27,7 @@ p.then((res) => console.log(res));
 
 ##Importent Resources:
   https://brainhub.eu/blog/2016/05/30/9-famous-apps-using-node-js/   (Nodejs+++++++++++++)
+
+##VIVI & SIRI DEMO
+
+https://techcrunch.com/2016/05/09/siri-creator-shows-off-first-public-demo-of-viv-the-intelligent-interface-for-everything/

@@ -31,3 +31,7 @@ p.then((res) => console.log(res));
 ##VIVI & SIRI DEMO
 
 https://techcrunch.com/2016/05/09/siri-creator-shows-off-first-public-demo-of-viv-the-intelligent-interface-for-everything/
+
+
+##Proxy issues tutorials##
+###http://whatis.techtarget.com/definition/proxy-server
